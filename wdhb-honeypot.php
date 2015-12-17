@@ -32,9 +32,6 @@ function wdhb_honeypot_add_field( $fields ) {
 		ob_start();
 		require( plugin_dir_path( __FILE__ ) . 'views/honeypot_field.php' );
 		$fields['wdhb_honeypot'] = ob_get_clean();
-
-		// Add JavaScript to hide the field
-		wp_enqueue_script( 'hide-honeypot', plugins_url( 'js/hide_honeypot_field.js', __FILE__ ) );
 	};
 	return $fields;
 }
