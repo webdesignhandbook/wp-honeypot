@@ -40,10 +40,9 @@ add_filter( 'comment_form_default_fields', 'wdhb_honeypot_add_field' );
 /**
  * Check if the honeypot field has been filled
  */
-function wdhb_honeypot_check_field( $comment_id, $comment_object ) {
-	if( $comment_object['wdhb_honeypot'] !== "" ) {
+function wdhb_honeypot_check_field( $comment_id, $comment_approved ) {
+	if( isset( $_POST['wdhb_honeypot'] ) && $_POST['wdhb_honeypot'] !== "" ) {
 		wp_spam_comment( $comment_id );
 	}
 }
-add_action( 'wp_insert_comment','wdhb_honeypot_check_field' );
-
+add_action( 'comment_post', 'wdhb_honeypot_check_field', 99, 2 );
