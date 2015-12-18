@@ -35,14 +35,20 @@ function wdhb_honeypot_add_field( $field ) {
 	$doc->loadHTML( $field );
 
 	$p = $doc->getElementsByTagName('p')->item(0);
-	$p->setAttribute('class', 'comment-form-honeypot');
+	if($p) {
+		$p->setAttribute('class', 'comment-form-honeypot');
+	}
 
-	$textarea = $doc->getElementById('comment');
-	$textarea->setAttribute('id', 'wdhb_honeypot');
-	$textarea->setAttribute('name', 'wdhb_honeypot');
+	$textarea = $doc->getElementsByTagName('textarea')->item(0);
+	if($textarea) {
+		$textarea->setAttribute('id', 'wdhb_honeypot');
+		$textarea->setAttribute('name', 'wdhb_honeypot');
+	}
 
 	$label = $doc->getElementsByTagName('label')->item(0);
-	$label->setAttribute('for', 'wdhb_honeypot');
+	if($label) {
+		$label->setAttribute('for', 'wdhb_honeypot');
+	}
 
 	return $doc->saveHTML() . $field;
 }
