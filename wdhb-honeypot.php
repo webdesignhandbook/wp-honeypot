@@ -1,6 +1,6 @@
 <?php
 /**
- * Add a honeypot to comment forms
+ * Adds a honeypot to comment forms
  *
  * @author WebDesignHandbook
  * @license GPLv2
@@ -23,19 +23,42 @@ if ( ! defined( 'WPINC' ) ) {
 }
 
 /**
- * Add the honeypot field
+ * Adds the honeypot field
  */
-function wdhb_honeypot_add_field( $fields ) {
-	if( ! isset( $fields['wdhb_honeypot'] ) ) {
+function wdhb_honeypot_add_field( $field ) {
 
-		// Import the view
-		ob_start();
-		require( plugin_dir_path( __FILE__ ) . 'views/honeypot_field.php' );
-		$fields['wdhb_honeypot'] = ob_get_clean();
-	};
-	return $fields;
+	// Include CSS to hide the honeypot from normal users
+	wp_enqueue_style('hide-honeypot', plugins_url('/css/hide-honeypot.css', __FILE__ ) );
+
+	// Duplicate the comment form
+	$doc = new DOMDocument();
+	$doc->loadHTML( $field );
+
+	$p = $doc->getElementsByTagName('p')->item(0);
+	$p->setAttribute('class', 'comment-form-honeypot');
+
+	$textarea = $doc->getElementById('comment');
+	$textarea->setAttribute('id', 'wdhb_honeypot');
+	$textarea->setAttribute('name', 'wdhb_honeypot');
+
+	$label = $doc->getElementsByTagName('label')->item(0);
+	$label->setAttribute('for', 'wdhb_honeypot');
+
+	return $doc->saveHTML() . $field;
 }
-add_filter( 'comment_form_default_fields', 'wdhb_honeypot_add_field' );
+add_filter( 'comment_form_field_comment', 'wdhb_honeypot_add_field' );
+
+/**
+ * Swaps back the values of the honeypot and the legitimate field
+ */
+function wdhb_honeypot_swap_fields( $comment_post_id ) {
+	if( isset( $_POST['wdhb_honeypot'] ) ) {
+		$temp = $_POST['wdhb_honeypot'];
+		$_POST['wdhb_honeypot'] = $_POST['comment'];
+		$_POST['comment'] = $temp;
+	}
+}
+add_filter( 'init', 'wdhb_honeypot_swap_fields' );
 
 /**
  * Check if the honeypot field has been filled
