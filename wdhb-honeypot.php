@@ -55,13 +55,22 @@ function wdhb_honeypot_add_field( $field ) {
 add_filter( 'comment_form_field_comment', 'wdhb_honeypot_add_field' );
 
 /**
- * Swaps back the values of the honeypot and the legitimate field
+ * Swaps the $_POST values of the honeypot and the comment fields
  */
 function wdhb_honeypot_swap_fields( $comment_post_id ) {
 	if( isset( $_POST['wdhb_honeypot'] ) ) {
-		$temp = $_POST['wdhb_honeypot'];
-		$_POST['wdhb_honeypot'] = $_POST['comment'];
-		$_POST['comment'] = $temp;
+
+		if( "" === $_POST['wdhb_honeypot'] ) {
+
+			// Visible field has been ignored; we're dealing with a bot
+			$_POST['wdhb_honeypot'] = 'Not an empty honeypot';
+		} else {
+
+			// Visible field has been filled; we might have a real user
+			$temp = $_POST['wdhb_honeypot'];
+			$_POST['wdhb_honeypot'] = $_POST['comment'];
+			$_POST['comment'] = $temp;
+		}
 	}
 }
 add_filter( 'init', 'wdhb_honeypot_swap_fields' );
